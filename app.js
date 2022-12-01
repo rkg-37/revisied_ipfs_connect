@@ -3,6 +3,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const fs = require("fs");
 const fileUpload = require("express-fileupload");
+const client = require("@sendgrid/mail");
 const { ethers } = require("ethers");
 const path = require("path");
 const util = require("util");
@@ -13,6 +14,7 @@ const ipfs = ipfsClient.create({
   port: "5001",
   protocol: "http",
 });
+client.setApiKey(CONFIG.SENDGRID_API_KEY);
 const app = express();
 
 app.set("view engine", "ejs");
@@ -238,6 +240,43 @@ app.post("/master_upload", (req, res) => {
   });
 });
 
+app.post("/getToken", (req, res) => {
+  const token_number = req.body.token_number;
+  // function to get token
+});
+
+app.post("/activateToken", (req, res) => {
+  const token_number = req.body.token_number;
+  // function to activate token
+});
+
+app.post("/assignTicket", (req, res) => {
+  const ticket_number = req.body.ticket_Number;
+  const officer_detail = req.body.officer_detail;
+  // function to vassign ticket
+});
+
+app.post("/raiseTicket", (req, res) => {
+  const userDetail = req.body.userDetail;
+  const token_id = req.body.token_id;
+  // function to raise ticket
+});
+
+app.post("/closeTicket", (req, res) => {
+  const ticket_Number = req.body.ticket_number;
+  // function to close ticket
+});
+
+app.post("/mail_sender", (req, res) => {
+  const email = req.body.email;
+  const token = req.body.token;
+  const product_detail = req.body.product_detail;
+  // function to send mail
+  (async () => {
+    await final_delivery(email, token, product_detail);
+  })();
+});
+
 // port route
 app.listen(3000, "0.0.0.0", async () => {
   ip = await ip_extractor();
@@ -305,3 +344,40 @@ async function execute(token_burn) {
   const token_burn_response = await contract.burnExpiredToken(token_burn);
   console.log(token_burn_response);
 }
+
+// mail sender body
+function getMessage(to_mail, token_id, product_detail) {
+  const body =
+    "<div> token id for registered product is : " +
+    token_id +
+    " </div> <div>Product details : " +
+    product_detail +
+    "</div>";
+  return {
+    to: to_mail,
+    from: CONFIG.SENDER_EMAIL,
+    subject: "Test email with Node.js and SendGrid",
+    text: body,
+    html: `<strong>${body}</strong>`,
+  };
+}
+
+async function sendEmail(to_email_id, token_id, product_detail) {
+  try {
+    await client.send(getMessage(to_email_id, token_id, product_detail));
+    console.log("Test email sent successfully");
+  } catch (error) {
+    console.error("Error sending test email");
+    console.error(error);
+    if (error.response) {
+      console.error(error.response.body);
+    }
+  }
+}
+
+async function final_delivery(to_email, token_id, product_detail) {
+  console.log("Sending test email");
+  await sendEmail(to_email, token_id, product_detail);
+}
+
+// mail sender body
