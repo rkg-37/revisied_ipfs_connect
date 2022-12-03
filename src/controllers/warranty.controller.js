@@ -91,8 +91,62 @@ const CreateWarranty = async (req, res) => {
     });
 }
 
+const FetchWarranty = async (req, res) => {
+    try{
+        const warranty = await contract.getWarrantyDetails(
+            req.body.productOwner,
+            req.body.secret,
+            Number(req.params.tokenId)
+        );
+
+        console.log(warranty);
+        // decode ipfs details
+        
+        return res.status(200).json({ message: "lets see"});
+    } catch(err) {
+        console.log(err);
+        return res.status(500).json({ message: "Error Occurred"})
+    }
+}
+
+const StartWarranty = async (req, res) => {
+    try{
+        const txnReceipt = await contract.startTracking(
+            req.body.productOwner,
+            req.body.secret,
+            req.body.token,
+        );
+
+        await txnReceipt.wait();
+
+        return res.status(200).json({ message: "Tracking on this token started!!"});
+    } catch(err) {
+        console.log(err);
+        return res.status(500).json({ message: "Error occured!!"});
+    }
+}
+
+const AddTrackingData = async (req, res) => {
+    try{
+
+        const token_id = req.body.token_id;
+        const company_officer = req.body.officer;
+        const company_location = req.body.location;
+
+        const txnReceipt = await contract.addTrackingData(
+            req.body.productOwner,
+            req.body.secret,
+            req.body.tokenId,
+
+        )
+    } catch(err) {
+        
+    }
+}
+
 module.exports = {
     CreateWarranty,
+    FetchWarranty,
 }
 
 

@@ -6,13 +6,15 @@ const fs = require("fs");
 const fileUpload = require("express-fileupload");
 const util = require("util");
 
-const { warrantyRouter} = require("./routes/warranty.route")
+const { warrantyRouter } = require("./routes/warranty.route")
 
 const app = express();
 
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(fileUpload());
 app.use(express.static("public"));
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+app.use(fileUpload());
+
 
 if (!fs.existsSync("./files")) {
     fs.mkdirSync("./files");
