@@ -36,7 +36,7 @@ app.get("/home", (req, res) => {
   res.render("home");
 });
 
-app.post("/upload", (req, res) => {
+app.post("/createWarranty", (req, res) => {
   const file = req.files.file;
   const fileName = req.files.file.name;
   const product_id = req.body.product_id;
@@ -323,13 +323,6 @@ async function addFile(fileName, filePath) {
 // upload json format data
 async function AddingJson(input) {
   return (await ipfs.add(Buffer.from(JSON.stringify(input)))).cid;
-}
-
-async function connect() {
-  if (typeof window.ethereum !== "undefined") {
-    console.log("We are in!!");
-    await ethereum.request({ method: "eth_requestAccounts" });
-  }
 }
 
 async function execute(token_burn) {
