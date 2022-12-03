@@ -1,4 +1,5 @@
 const { ethers } = require("ethers");
+const fs = require("fs");
 
 const rawdata = fs.readFileSync("public/contract_abi.json");
 const abi = JSON.parse(rawdata);

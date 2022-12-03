@@ -1,6 +1,7 @@
 const express = require("express");
 const { contract } = require("../config/blockchain.config")
 const { ipfsAddFile, ipfsAddJson } = require("../utils/ipfs.utils")
+const fs = require("fs");
 
 const CreateWarranty = async (req, res) => {
     const file = req.files.file;
@@ -74,12 +75,12 @@ const CreateWarranty = async (req, res) => {
                 req.body.client_secret_key,
                 prodHash.toString(),
                 cust_hash.toString(),
-                req.body.expiry_duration,
+                Number(req.body.expiry_duration),
             )
 
             const log = await txnReceipt.wait()
-
-            console.log(log);
+            const transferEvent = log.events.filter( _e => _e.event == "Transfer" )[0];
+	    return res.status(200).json({ tokenId: transferEvent.args[2].toString(), message: "Product added"})
         } catch(err) {
             console.log(err);
             return res.status(500).json({
@@ -87,7 +88,6 @@ const CreateWarranty = async (req, res) => {
             })
         }
         
-        return res.status(200);
     });
 }
 

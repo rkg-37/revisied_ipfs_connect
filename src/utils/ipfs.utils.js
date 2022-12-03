@@ -1,4 +1,5 @@
 const { ipfs } = require("../config/ipfs.config")
+const fs = require("fs");
 
 // adding images
 const ipfsAddFile = async function (fileName, filePath) {
