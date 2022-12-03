@@ -2,6 +2,8 @@ const express = require("express");
 const { contract } = require("../config/blockchain.config")
 const { ipfsAddFile, ipfsAddJson } = require("../utils/ipfs.utils")
 const fs = require("fs");
+const axios = require('axios');
+const {Warranty} = require("../models/warranty.model");
 
 const CreateWarranty = async (req, res) => {
     const file = req.files.file;
@@ -101,6 +103,23 @@ const FetchWarranty = async (req, res) => {
 
         console.log(warranty);
         // decode ipfs details
+        const response = await axios({
+            method: "get",
+            url: `http://${process.env.AWS_IP}/ipfs/${warranty}`
+        });
+        if (response.status == 200) {
+            console.log("Success:", response.data);
+            Warranty.warrantyDetails = response.data.warrantyDetails,
+            Warranty.customer= response.data.customer,
+            Warranty.expiryDuration= response.data.expiryDuration,
+            Warranty.startTime = response.data.startTime,
+            Warranty.endTime = response.data.endTime,
+            Warranty.tracking = response.data.tracking,
+            Warranty.activity = response.data.activity,
+            Warranty.status = response.data.status,
+            Warranty.creationDate =  response.data.creationDate
+        }
+
         
         return res.status(200).json({ message: "lets see"});
     } catch(err) {

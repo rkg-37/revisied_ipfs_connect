@@ -4,7 +4,9 @@ const warrantyRouter = express.Router()
 
 warrantyRouter.post("/create", warrantyController.CreateWarranty);
 warrantyRouter.post("/startTransit");
-warrantyRouter.post("/activateWarranty");
+warrantyRouter.post("/addTrackingData");
+warrantyRouter.post("/reachedDestination");
+warrantyRouter.post("/addActivity");
 warrantyRouter.post("/:tokenId", warrantyController.FetchWarranty);
 
 module.exports = {
