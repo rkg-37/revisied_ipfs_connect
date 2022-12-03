@@ -19,7 +19,7 @@ if (!fs.existsSync("./files")) {
 }
 
 app.use("/warranty", warrantyRouter);
-app.use("/ticket")
+//app.use("/ticket")
 
 app.listen(3000, "0.0.0.0", async () => {
     console.log("current public ip address : ", process.env.AWS_IP);
