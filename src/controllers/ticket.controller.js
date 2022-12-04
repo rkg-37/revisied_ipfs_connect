@@ -45,6 +45,7 @@ const assignTicket = async (req, res) => {
 
     const officer_hash = await ipfsAddJson(officer_details);
 
+<<<<<<< Updated upstream
     const assignTicketResponse = await contract.assignTicketToOfficer(
       req.body.productOwner,
       req.body.secret,
@@ -53,6 +54,15 @@ const assignTicket = async (req, res) => {
       process.env.TICKET_ADDRESS
     );
     await assignTicketResponse.wait();
+=======
+            const assignTicketResponse = await contract.assignTicketToOfficer(
+                req.body.productOwner,
+                req.body.secret,
+                req.body.ticketId,
+                officer_hash.toString(),
+		process.env.TICKET_ADDRESS
+            );
+>>>>>>> Stashed changes
 
     console.log(assignTicketResponse);
 

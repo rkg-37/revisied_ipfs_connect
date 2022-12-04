@@ -5,3 +5,4 @@ apikey.txt
 .env
 files/
 ipfs.config.js
+contract_abi.json
