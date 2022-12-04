@@ -7,6 +7,7 @@ const {
     ipfsGetData
 } = require("../utils/ipfs.utils")
 const fs = require("fs");
+const { BigNumber, ethers } = require("ethers");
 
 const CreateWarranty = async (req, res) => {
     try {
@@ -120,6 +121,18 @@ const FetchWarranty = async (req, res) => {
         //     method: "get",
         //     url: `http://${process.env.AWS_IP}/ipfs/${warranty}`
         // });
+	let track = [];
+	let act = [];
+	for( let i=0; i<warranty[5].length; i++){
+	    console.log(warranty[5], warranty[5][i])
+	    const _t = await ipfsGetData(warranty[5][i]);
+	    track.push(_t);
+	}
+	for( let i=0; i<warranty[6].length; i++){
+            const _a = await ipfsGetData(warranty[6][i]);
+            track.push(_a);
+        }
+	console.log( warranty[5]);
         let responseObject = {
             code: 200,
             result: {
@@ -128,13 +141,9 @@ const FetchWarranty = async (req, res) => {
                 expiry_duration: warranty[2].toString(),
                 startTime: warranty[3].toString(),
                 endTime: warranty[4].toString(),
-                tracking: warranty[5].map(async (_t) => {
-                    return await ipfsGetData(_t)
-                }),
-                acitvity: warranty[6].map(async (_a) => {
-                    return await ipfsGetData(_a)
-                }),
-                status: warranty[7],
+                tracking: track,
+		activity: act,
+		status: warranty[7],
                 creationDate: (new Date(Number(warranty[8].toString()) * 1000))
             },
             message: "Warranty fetched!!!"
@@ -175,14 +184,14 @@ const StartTransit = async (req, res) => {
 
 const AddTrackingData = async (req, res) => {
     try {
-
+	
         const trackingDetails = {
             officer: {
                 name: req.body.officer.name,
                 user_id: req.body.officer.user_id,
             },
             location : req.body.location,
-            time : (new Date()).getTime(),
+	    time : (new Date()).getTime(),
         }
 
         const txnReceipt = await contract.addTrackingData(
@@ -190,9 +199,10 @@ const AddTrackingData = async (req, res) => {
             req.body.secret,
             req.body.token_id,
             (await ipfsAddJson(trackingDetails)).toString(),
-        )
+	)
 
-        await txnReceipt.wait();
+        //await txnReceipt.wait();
+	console.log(txnReceipt);
 
         return res.status(200).json({ message: "Tracking Data Added!!!"})
     } catch (err) {
