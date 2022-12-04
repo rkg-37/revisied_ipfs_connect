@@ -202,9 +202,33 @@ const AddTrackingData = async (req, res) => {
 	)
 
         //await txnReceipt.wait();
-	console.log(txnReceipt);
 
         return res.status(200).json({ message: "Tracking Data Added!!!"})
+    } catch (err) {
+        console.log(err);
+        return res.status(200).json({ message: "Error occured"})
+    }
+}
+
+const DestinationReached = async (req, res) => {
+    try{
+        const trackingDetails = {
+            officer: {
+                name: req.body.officer.name,
+                user_id: req.body.officer.user_id,
+            },
+            location : req.body.location,
+	        time : (new Date()).getTime(),
+            delivered: true,
+        }
+        const txnReceipt = await contract.reachedDestination(
+            req.body.productOwner,
+            req.body.secret,
+            req.body.token_id,
+            (await ipfsAddJson(trackingDetails)).toString(),
+        )
+
+        return res.status(200).json({ message: "Destination reached!!! Status changed."})
     } catch (err) {
         console.log(err);
         return res.status(200).json({ message: "Error occured"})
@@ -216,4 +240,5 @@ module.exports = {
     FetchWarranty,
     StartTransit,
     AddTrackingData,
+    DestinationReached,
 }
