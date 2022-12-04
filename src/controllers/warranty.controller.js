@@ -194,4 +194,6 @@ const AddTrackingData = async (req, res) => {
 module.exports = {
     CreateWarranty,
     FetchWarranty,
+    StartWarranty,
+    AddTrackingData,
 }

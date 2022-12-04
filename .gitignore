@@ -4,3 +4,4 @@ nohup.out
 apikey.txt
 .env
 files/
+ipfs.config.js
