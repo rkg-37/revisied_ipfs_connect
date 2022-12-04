@@ -5,6 +5,7 @@ const ticketRouter = express.Router()
 ticketRouter.post("/raiseTicket",ticketController.raiseTicket);
 ticketRouter.post("/assignTicket",ticketController.assignTicket);
 ticketRouter.post("/closeTicket",ticketController.closeTicket);
+ticketRouter.post("/getTicket",ticketController.getTicketDetails);
 
 module.exports = {
     ticketRouter,
