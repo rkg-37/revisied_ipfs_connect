@@ -24,7 +24,8 @@ const raiseTicket = async (req, res) => {
             const raiseTicketResponse = await contract.raiseTicket(
                 req.body.productOwner,
                 req.body.secret,
-                ticket_hash.toString()
+                ticket_hash.toString(),
+		    process.env.TICKET_ADDRESS
             );
             const demo = await raiseTicketResponse.wait();
 
