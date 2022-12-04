@@ -129,10 +129,10 @@ const FetchWarranty = async (req, res) => {
                 startTime: warranty[3].toString(),
                 endTime: warranty[4].toString(),
                 tracking: warranty[5].map(async (_t) => {
-                    await ipfsGetData(_t)
+                    return await ipfsGetData(_t)
                 }),
                 acitvity: warranty[6].map(async (_a) => {
-                    await ipfsGetData(_a)
+                    return await ipfsGetData(_a)
                 }),
                 status: warranty[7],
                 creationDate: (new Date(Number(warranty[8].toString()) * 1000))
@@ -152,7 +152,7 @@ const FetchWarranty = async (req, res) => {
     }
 }
 
-const StartWarranty = async (req, res) => {
+const StartTransit = async (req, res) => {
     try {
         const txnReceipt = await contract.startTracking(
             req.body.productOwner,
@@ -176,24 +176,34 @@ const StartWarranty = async (req, res) => {
 const AddTrackingData = async (req, res) => {
     try {
 
-        const token_id = req.body.token_id;
-        const company_officer = req.body.officer;
-        const company_location = req.body.location;
+        const trackingDetails = {
+            officer: {
+                name: req.body.officer.name,
+                user_id: req.body.officer.user_id,
+            },
+            location : req.body.location,
+            time : (new Date()).getTime(),
+        }
 
         const txnReceipt = await contract.addTrackingData(
             req.body.productOwner,
             req.body.secret,
-            req.body.tokenId,
-
+            req.body.token_id,
+            (await ipfsAddJson(trackingDetails)).toString(),
         )
-    } catch (err) {
 
+        await txnReceipt.wait();
+
+        return res.status(200).json({ message: "Tracking Data Added!!!"})
+    } catch (err) {
+        console.log(err);
+        return res.status(200).json({ message: "Error occured"})
     }
 }
 
 module.exports = {
     CreateWarranty,
     FetchWarranty,
-    StartWarranty,
+    StartTransit,
     AddTrackingData,
 }
