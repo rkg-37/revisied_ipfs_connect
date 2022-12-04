@@ -57,7 +57,7 @@ const assignTicket = async (req, res) => {
             const assignTicketResponse = await contract.assignTicketToOfficer(
                 req.body.productOwner,
                 req.body.secret,
-                req.bodyticketId,
+                req.body.ticketId,
                 officer_hash.toString(),
 		        process.env.TICKET_ADDRESS
             );
