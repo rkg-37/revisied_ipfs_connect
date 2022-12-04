@@ -18,7 +18,7 @@ contract TicketContract is ERC721URIStorage {
         string officerAssigned;
         uint256 creationDate;
         string status; // pending, assigned
-        string comments;
+        string[] comments;
     }
 
     error Unauthorised();
@@ -52,12 +52,14 @@ contract TicketContract is ERC721URIStorage {
 
         _mint(ticketOwner, newTokenId);
 
+        string[] memory emptyArr;
+
         idToTicket[newTokenId] = Ticket (
             ipfsHash,
             "",
             block.timestamp,
             "pending",
-            ""
+            emptyArr
         );
     }
 
@@ -69,12 +71,17 @@ contract TicketContract is ERC721URIStorage {
 
     function assignTicket(address ticketOwner, uint256 ticketId, string memory officerHash) public checkExistence(ticketId) checkOwner(ticketOwner, ticketId) {
         idToTicket[ticketId].officerAssigned = officerHash;
+	idToTicket[ticketId].status = "assigned";
     }
 
     function burnTicket(address ticketOwner, uint256 ticketId) public checkExistence(ticketId) checkOwner(ticketOwner, ticketId){
         _burn(ticketId);
         delete idToTicket[ticketId];
     }
+
+    function addComment(address ticketOwner, uint256 ticketId, string memory comment) public checkExistence(ticketId) checkOwner(ticketOwner, ticketId) {
+        idToTicket[ticketId].comments.push(comment);
+    } 
 
 
 

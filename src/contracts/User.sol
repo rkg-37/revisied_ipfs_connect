@@ -18,6 +18,10 @@ contract UserContract {
         string details;
         bytes32 secretKey;
         uint256 itemsAllowed;
+        uint256 totalWarranty;
+        uint256 inactiveWarranty;
+        uint256 activeWarranty;
+        uint256 expiredWarranty;
     }
 
     mapping( address => User) internal UserAccounts;
@@ -54,6 +58,10 @@ contract UserContract {
                 payable(msg.sender),
                 ipfsHash,
                 userSecretKey,
+                0,
+                0,
+                0,
+                0,
                 0
             );
 

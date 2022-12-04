@@ -1,8 +1,8 @@
 const express = require("express");
-
+const userController = require("../controllers/user.controller")
 const userRouter = express.Router();
 
-userRouter.post("/signUp");
+userRouter.post("/getHash", userController.GetIPFSHash);
 
 module.exports = {
     userRouter,

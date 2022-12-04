@@ -7,11 +7,14 @@ const {
     ipfsGetData
 } = require("../utils/ipfs.utils")
 const fs = require("fs");
-const { BigNumber, ethers } = require("ethers");
+const {
+    BigNumber,
+    ethers
+} = require("ethers");
 
 const CreateWarranty = async (req, res) => {
     try {
-        
+
         const file = req.files.file;
         const fileName = req.files.file.name;
         const product_id = req.body.product_id;
@@ -32,7 +35,7 @@ const CreateWarranty = async (req, res) => {
         const filePath = "files/" + fileName;
 
         file.mv(filePath, async (err) => {
-            
+
             if (err) {
                 console.log(err);
                 return res.status(500).send(err);
@@ -101,38 +104,41 @@ const CreateWarranty = async (req, res) => {
             }
 
         });
-    } catch(err) {
+    } catch (err) {
         console.log(err);
-        return res.status(500).json({ message: "Error Occured!!"})
+        return res.status(500).json({
+            message: "Error Occured!!"
+        })
     }
 
 }
 
 const FetchWarranty = async (req, res) => {
     try {
+
+        // Check Expiry
+        const warrantyExpiryTime = await contract.getExpiryTime(req.params.tokenId);
+        if (((Number(warrantyExpiryTime)) * 1000) > (new Date()).getTime()) {
+            const expiry = await contract.addExpiry(req.parmas.tokenId);
+        }
+
         const warranty = await contract.getWarrantyDetails(
             req.body.productOwner,
             req.body.secret,
             Number(req.params.tokenId)
         );
 
-        // decode ipfs details
-        // const response = await axios({
-        //     method: "get",
-        //     url: `http://${process.env.AWS_IP}/ipfs/${warranty}`
-        // });
-	let track = [];
-	let act = [];
-	for( let i=0; i<warranty[5].length; i++){
-	    console.log(warranty[5], warranty[5][i])
-	    const _t = await ipfsGetData(warranty[5][i]);
-	    track.push(_t);
-	}
-	for( let i=0; i<warranty[6].length; i++){
+        let track = [];
+        let act = [];
+        for (let i = 0; i < warranty[5].length; i++) {
+            console.log(warranty[5], warranty[5][i])
+            const _t = await ipfsGetData(warranty[5][i]);
+            track.push(_t);
+        }
+        for (let i = 0; i < warranty[6].length; i++) {
             const _a = await ipfsGetData(warranty[6][i]);
             track.push(_a);
         }
-	console.log( warranty[5]);
         let responseObject = {
             code: 200,
             result: {
@@ -142,8 +148,8 @@ const FetchWarranty = async (req, res) => {
                 startTime: warranty[3].toString(),
                 endTime: warranty[4].toString(),
                 tracking: track,
-		activity: act,
-		status: warranty[7],
+                activity: act,
+                status: warranty[7],
                 creationDate: (new Date(Number(warranty[8].toString()) * 1000))
             },
             message: "Warranty fetched!!!"
@@ -163,6 +169,12 @@ const FetchWarranty = async (req, res) => {
 
 const StartTransit = async (req, res) => {
     try {
+
+        // Check Expiry
+        const warrantyExpiryTime = await contract.getExpiryTime(req.params.tokenId);
+        if (((Number(warrantyExpiryTime)) * 1000) > (new Date()).getTime()) {
+            const expiry = await contract.addExpiry(req.parmas.tokenId);
+        }
         const txnReceipt = await contract.startTracking(
             req.body.productOwner,
             req.body.secret,
@@ -184,14 +196,21 @@ const StartTransit = async (req, res) => {
 
 const AddTrackingData = async (req, res) => {
     try {
-	
+
+        // Check Expiry
+        const warrantyExpiryTime = await contract.getExpiryTime(req.params.tokenId);
+        if (((Number(warrantyExpiryTime)) * 1000) > (new Date()).getTime()) {
+            const expiry = await contract.addExpiry(req.parmas.tokenId);
+        }
+
+
         const trackingDetails = {
             officer: {
                 name: req.body.officer.name,
                 user_id: req.body.officer.user_id,
             },
-            location : req.body.location,
-	    time : (new Date()).getTime(),
+            location: req.body.location,
+            time: (new Date()).getTime(),
         }
 
         const txnReceipt = await contract.addTrackingData(
@@ -199,26 +218,36 @@ const AddTrackingData = async (req, res) => {
             req.body.secret,
             req.body.token_id,
             (await ipfsAddJson(trackingDetails)).toString(),
-	)
+        )
 
         //await txnReceipt.wait();
 
-        return res.status(200).json({ message: "Tracking Data Added!!!"})
+        return res.status(200).json({
+            message: "Tracking Data Added!!!"
+        })
     } catch (err) {
         console.log(err);
-        return res.status(200).json({ message: "Error occured"})
+        return res.status(200).json({
+            message: "Error occured"
+        })
     }
 }
 
 const DestinationReached = async (req, res) => {
-    try{
+    try {
+        // Check Expiry
+        const warrantyExpiryTime = await contract.getExpiryTime(req.params.tokenId);
+        if (((Number(warrantyExpiryTime)) * 1000) > (new Date()).getTime()) {
+            const expiry = await contract.addExpiry(req.parmas.tokenId);
+        }
+
         const trackingDetails = {
             officer: {
                 name: req.body.officer.name,
                 user_id: req.body.officer.user_id,
             },
-            location : req.body.location,
-	        time : (new Date()).getTime(),
+            location: req.body.location,
+            time: (new Date()).getTime(),
             delivered: true,
         }
         const txnReceipt = await contract.reachedDestination(
@@ -228,10 +257,49 @@ const DestinationReached = async (req, res) => {
             (await ipfsAddJson(trackingDetails)).toString(),
         )
 
-        return res.status(200).json({ message: "Destination reached!!! Status changed."})
+        return res.status(200).json({
+            message: "Destination reached!!! Status changed."
+        })
     } catch (err) {
         console.log(err);
-        return res.status(200).json({ message: "Error occured"})
+        return res.status(200).json({
+            message: "Error occured"
+        })
+    }
+}
+
+const AddActivity = async (req, res) => {
+    try {
+        // Check Expiry
+        const warrantyExpiryTime = await contract.getExpiryTime(req.params.tokenId);
+        if (((Number(warrantyExpiryTime)) * 1000) > (new Date()).getTime()) {
+            const expiry = await contract.addExpiry(req.parmas.tokenId);
+        }
+
+        const activityDetails = {
+            officer: {
+                name: req.body.officer.name,
+                user_id: req.body.officer.user_id,
+            },
+            location: req.body.location,
+            time: (new Date()).getTime(),
+            description: req.body.description,
+        }
+        const txnReceipt = await contract.addActivityToToken(
+            req.body.productOwner,
+            req.body.secret,
+            req.body.token_id,
+            (await ipfsAddJson(activityDetails)).toString(),
+        )
+
+        return res.status(200).json({
+            message: "Activity Added."
+        })
+    } catch (err) {
+        console.log(err);
+        return res.status(200).json({
+            message: "Error occured"
+        })
     }
 }
 
@@ -241,4 +309,5 @@ module.exports = {
     StartTransit,
     AddTrackingData,
     DestinationReached,
+    AddActivity,
 }
