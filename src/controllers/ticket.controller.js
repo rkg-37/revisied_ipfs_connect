@@ -51,7 +51,7 @@ const assignTicket = async (req, res) => {
                     "UserId":req.body.officer_id
             };
             
-            const officer_hash = await ipfsAddJson(officer_assign);
+            const officer_hash = await ipfsAddJson(officer_details);
 
 
             const assignTicketResponse = await contract.assignTicketToOfficer(
